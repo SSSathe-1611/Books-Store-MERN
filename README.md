@@ -1,2 +1,2 @@
-# imagination-planet
-An AI-powered story and world-building platform built with the MERN stack and a FastAPI/PyTorch microservice.
+# Books-Store-Mern
+A Single Page Application, which a librarian can use to manage the book store database using CRUD Operations
