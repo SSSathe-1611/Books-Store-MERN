@@ -7,20 +7,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <SnackbarProvider>
-      <App />
-    </SnackbarProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+        <App />
+      </SnackbarProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );
-
-
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//   <React.StrictMode>
-//     <BrowserRouter>
-//       <SnackbarProvider>
-//         <App />
-//       </SnackbarProvider>
-//     </BrowserRouter>
-//   </React.StrictMode>
-// );
