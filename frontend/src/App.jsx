@@ -37,25 +37,42 @@ export default function App() {
   };
 
   return (
-    <div className="app-container p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Library — Books</h1>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
-          <BookForm onSubmit={handleCreate} />
-        </div>
-        <div className="md:col-span-2">
-          <BookTable
-            books={books}
-            loading={loading}
-            onEdit={(b) => handleUpdate(b._id, b)}
-            onDelete={handleDelete}
-          />
-        </div>
-      </div>
-      <ToastContainer position="bottom-right" autoClose={3000} />
+  <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100">
+    <div className="max-w-7xl mx-auto p-6 md:p-12">
+      
+      {/* Modern Header with action button */}
+      <header className="flex justify-between items-center mb-10">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          My Library
+        </h1>
+        <button 
+          onClick={() => setIsFormModalOpen(true)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-full font-medium transition-colors shadow-sm"
+        >
+          + Add Book
+        </button>
+      </header>
+
+      {/* Main Content Area */}
+      <main>
+        {loading ? (
+          <BookGridSkeleton count={6} />
+        ) : books.length > 0 ? (
+          <BookCardGrid books={books} onEdit={handleUpdate} onDelete={handleDelete} />
+        ) : (
+          <EmptyState message="Your library is looking a little bare." />
+        )}
+      </main>
+
+      {/* Hidden off-canvas / modal until needed */}
+      <SlideOutForm 
+        isOpen={isFormModalOpen} 
+        onClose={() => setIsFormModalOpen(false)} 
+        onSubmit={handleCreate} 
+      />
+
     </div>
-  );
+    <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
+  </div>
+);
 }
-
-
-export default App;
