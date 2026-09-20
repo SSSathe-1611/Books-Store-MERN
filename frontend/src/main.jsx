@@ -5,22 +5,26 @@ import './index.css';
 import './styles.css';
 import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Initialize the React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Prevents refetching every time you switch browser tabs
+      retry: 1, // Only retry failed requests once to avoid spamming the backend
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <SnackbarProvider>
-      <App />
-    </SnackbarProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+          <App />
+        </SnackbarProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
-
-
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//   <React.StrictMode>
-//     <BrowserRouter>
-//       <SnackbarProvider>
-//         <App />
-//       </SnackbarProvider>
-//     </BrowserRouter>
-//   </React.StrictMode>
-// );
