@@ -1,61 +1,63 @@
-// src/hooks/useBooks.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 
-const API = import.meta.env.VITE_API_BASE || "http://localhost:5000/api/books";
+const API = import.meta.env.VITE_API_BASE || 'http://localhost:5555/books';
 
 export default function useBooks() {
-  const queryClient = useQueryClient();
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // 1. Fetch & Cache Books globally
-  const { data: books = [], isLoading: loading, error } = useQuery({
-    queryKey: ['books'],
-    queryFn: async () => {
-      const res = await axios.get(API);
-      return res.data;
+  const fetchBooks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(API);
+      const data = response.data?.data ?? response.data ?? [];
+      setBooks(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch books:', err);
+      setError(err);
+      setBooks([]);
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
-  // 2. Create Book
-  const createBook = useMutation({
-    mutationFn: async (payload) => {
-      const res = await axios.post(API, payload);
-      return res.data;
-    },
-    onSuccess: () => {
-      // Instantly refetch and sync all components using the 'books' key
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    }
-  });
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks]);
 
-  // 3. Update Book
-  const updateBook = useMutation({
-    mutationFn: async ({ id, payload }) => {
-      const res = await axios.put(`${API}/${id}`, payload);
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    }
-  });
+  const createBook = useCallback(async (payload) => {
+    const response = await axios.post(API, payload);
+    const created = response.data;
+    setBooks((current) => [...current, created]);
+    return created;
+  }, []);
 
-  // 4. Delete Book
-  const deleteBook = useMutation({
-    mutationFn: async (id) => {
-      await axios.delete(`${API}/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['books'] });
-    }
-  });
+  const updateBook = useCallback(async (id, payload) => {
+    const response = await axios.put(`${API}/${id}`, payload);
+    const updated = response.data;
+    setBooks((current) =>
+      current.map((book) => (book._id === id ? { ...book, ...payload } : book))
+    );
+    return updated;
+  }, []);
 
-  return { 
-    books, 
-    loading, 
+  const deleteBook = useCallback(async (id) => {
+    await axios.delete(`${API}/${id}`);
+    setBooks((current) => current.filter((book) => book._id !== id));
+  }, []);
+
+  return {
+    books,
+    loading,
     error,
-    // Exporting the async functions so your components can still use try/catch if needed
-    createBook: createBook.mutateAsync, 
-    updateBook: updateBook.mutateAsync, 
-    deleteBook: deleteBook.mutateAsync 
+    createBook,
+    updateBook,
+    deleteBook,
+    refetch: fetchBooks,
   };
 }
+

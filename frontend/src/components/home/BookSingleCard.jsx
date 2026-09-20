@@ -1,49 +1,70 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Edit2, Trash2, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PiBookOpenTextLight } from 'react-icons/pi';
-import { BiUserCircle, BiShow } from 'react-icons/bi';
-import { AiOutlineEdit } from 'react-icons/ai';
-import { BsInfoCircle } from 'react-icons/bs';
-import { MdOutlineDelete } from 'react-icons/md';
-import { useState } from 'react';
 import BookModal from './BookModal';
+import { useState } from 'react';
 
-const BookSingleCard = ({ book }) => {
+export default function BookSingleCard({ book }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className='border-2 border-gray-500 rounded-lg px-4 py-2 m-4 relative hover:shadow-xl'>
-      <h2 className='absolute top-1 right-2 px-4 py-1 bg-red-300 rounded-lg'>
-        {book.publishYear}
-      </h2>
-      <h4 className='my-2 text-gray-500'>{book._id}</h4>
-      <div className='flex justify-start items-center gap-x-2'>
-        <PiBookOpenTextLight className='text-red-300 text-2xl' />
-        <h2 className='my-1'>{book.title}</h2>
-      </div>
-      <div className='flex justify-start items-center gap-x-2'>
-        <BiUserCircle className='text-red-300 text-2xl' />
-        <h2 className='my-1'>{book.author}</h2>
-      </div>
-      <div className='flex justify-between items-center gap-x-2 mt-4 p-4'>
-        <BiShow
-          className='text-3xl text-blue-800 hover:text-black cursor-pointer'
-          onClick={() => setShowModal(true)}
-        />
-        <Link to={`/books/details/${book._id}`}>
-          <BsInfoCircle className='text-2xl text-green-800 hover:text-black' />
-        </Link>
-        <Link to={`/books/edit/${book._id}`}>
-          <AiOutlineEdit className='text-2xl text-yellow-600 hover:text-black' />
-        </Link>
-        <Link to={`/books/delete/${book._id}`}>
-          <MdOutlineDelete className='text-2xl text-red-600 hover:text-black' />
-        </Link>
-      </div>
-      {showModal && (
-        <BookModal book={book} onClose={() => setShowModal(false)} />
-      )}
-    </div>
-  );
-};
+    <>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        whileHover={{ y: -6 }}
+        transition={{ duration: 0.2 }}
+        className='group relative bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-xl flex flex-col m-4'
+      >
+        <div className='aspect-[3/4] w-full rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center mb-4 border border-slate-100 overflow-hidden relative'>
+          <span className='text-5xl font-black text-indigo-200/50 uppercase tracking-widest text-center px-4 leading-tight'>
+            {book.title ? book.title.substring(0, 2) : 'BK'}
+          </span>
 
-export default BookSingleCard;
+          <div className='absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 backdrop-blur-[2px]'>
+            <button
+              onClick={() => setShowModal(true)}
+              className='p-2.5 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors shadow-sm'
+              title='Details'
+            >
+              <Info size={20} />
+            </button>
+            <Link
+              to={`/books/edit/${book._id}`}
+              className='p-2.5 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-md transition-colors shadow-sm'
+              title='Edit'
+            >
+              <Edit2 size={20} />
+            </Link>
+            <Link
+              to={`/books/delete/${book._id}`}
+              className='p-2.5 bg-red-500/80 hover:bg-red-600 rounded-full text-white backdrop-blur-md transition-colors shadow-sm'
+              title='Delete'
+            >
+              <Trash2 size={20} />
+            </Link>
+          </div>
+        </div>
+
+        <div className='flex-1 flex flex-col'>
+          <h3 className='text-lg font-bold text-slate-900 line-clamp-2 leading-tight mb-1'>
+            {book.title}
+          </h3>
+          <p className='text-sm font-medium text-slate-500 mb-4'>
+            {book.author}
+          </p>
+          <div className='mt-auto flex items-center justify-between'>
+            <span className='inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600'>
+              {book.publishYear}
+            </span>
+          </div>
+        </div>
+      </motion.div>
+
+      {showModal && <BookModal book={book} onClose={() => setShowModal(false)} />}
+    </>
+  );
+}
